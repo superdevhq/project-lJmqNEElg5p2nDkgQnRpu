@@ -42,9 +42,11 @@ const Header = () => {
             <User className="h-5 w-5" />
           </Button>
           
-          <Button variant="default" className="hidden md:flex">
-            List Property
-          </Button>
+          <Link to="/list-property">
+            <Button variant="default" className="hidden md:flex">
+              List Property
+            </Button>
+          </Link>
           
           <Sheet>
             <SheetTrigger asChild>
@@ -69,9 +71,11 @@ const Header = () => {
                 <Link to="/contact" className="text-sm font-medium hover:text-primary transition-colors">
                   Contact
                 </Link>
-                <Button variant="default" className="mt-4">
-                  List Property
-                </Button>
+                <Link to="/list-property">
+                  <Button variant="default" className="mt-4">
+                    List Property
+                  </Button>
+                </Link>
               </div>
             </SheetContent>
           </Sheet>
