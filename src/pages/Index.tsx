@@ -5,221 +5,198 @@ import { properties } from "@/data/properties";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
-import PropertyMap from "@/components/PropertyMap";
+import PropertyCategories from "@/components/PropertyCategories";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Search, MapPin, Home, Building, ArrowRight } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 const Index = () => {
-  const [searchLocation, setSearchLocation] = useState("");
-  const [propertyType, setPropertyType] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   
-  // Get featured properties
-  const featuredProperties = properties.filter(property => property.featured);
+  // Filter properties based on selected category (mock implementation)
+  // In a real app, you would have proper category data
+  const filteredProperties = properties.filter(property => {
+    if (selectedCategory === "all") return true;
+    if (selectedCategory === "beachfront" && property.amenities.includes("Waterfront")) return true;
+    if (selectedCategory === "mountain" && property.amenities.includes("Mountain View")) return true;
+    if (selectedCategory === "apartment" && property.type === "apartment") return true;
+    if (selectedCategory === "trending" && property.featured) return true;
+    return false;
+  });
   
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       
       {/* Hero Section */}
-      <section className="relative h-[600px] flex items-center">
+      <section className="relative h-[70vh] flex items-center">
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=2073&auto=format&fit=crop" 
-            alt="Luxury home" 
+            src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070&auto=format&fit=crop" 
+            alt="Beautiful destination" 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent" />
         </div>
         
         <div className="container relative z-10 text-white">
           <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Find Your Dream Home</h1>
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">Find your place anywhere</h1>
             <p className="text-xl mb-8 text-white/90">
-              Discover the perfect property that matches your lifestyle and preferences.
+              Discover the perfect stay for your next adventure
             </p>
             
-            <div className="bg-white p-4 rounded-lg shadow-lg">
-              <div className="flex flex-col md:flex-row gap-3">
-                <div className="flex-1 relative">
-                  <MapPin className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
-                  <Input 
-                    placeholder="Enter location" 
-                    className="pl-10"
-                    value={searchLocation}
-                    onChange={(e) => setSearchLocation(e.target.value)}
-                  />
-                </div>
-                
-                <div className="w-full md:w-48">
-                  <Select value={propertyType} onValueChange={setPropertyType}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Property Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Types</SelectItem>
-                      <SelectItem value="house">House</SelectItem>
-                      <SelectItem value="apartment">Apartment</SelectItem>
-                      <SelectItem value="condo">Condo</SelectItem>
-                      <SelectItem value="townhouse">Townhouse</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <Button className="md:w-auto">
-                  <Search className="mr-2 h-4 w-4" />
-                  Search
-                </Button>
-              </div>
-            </div>
+            <Button 
+              size="lg" 
+              className="rounded-full text-lg px-8 py-6 bg-primary hover:bg-primary/90"
+            >
+              Explore nearby stays
+            </Button>
           </div>
         </div>
       </section>
       
-      {/* Featured Properties Section */}
-      <section className="py-16 bg-background">
+      {/* Categories Section */}
+      <PropertyCategories onSelectCategory={setSelectedCategory} />
+      
+      {/* Properties Grid */}
+      <section className="py-8 bg-background">
         <div className="container">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h2 className="text-3xl font-bold">Featured Properties</h2>
-              <p className="text-muted-foreground mt-2">Explore our handpicked selection of premium properties</p>
-            </div>
-            <Link to="/properties">
-              <Button variant="outline">
-                View All
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredProperties.map((property) => (
+              <PropertyCard key={property.id} property={property} />
+            ))}
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredProperties.slice(0, 3).map((property) => (
-              <PropertyCard key={property.id} property={property} />
+          {filteredProperties.length === 0 && (
+            <div className="text-center py-16">
+              <h3 className="text-xl font-medium mb-2">No properties found</h3>
+              <p className="text-muted-foreground mb-6">
+                Try changing your search criteria or explore other categories
+              </p>
+              <Button 
+                onClick={() => setSelectedCategory("all")}
+                className="rounded-full"
+              >
+                View all properties
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
+      
+      {/* Inspiration Section */}
+      <section className="py-16 bg-muted/30">
+        <div className="container">
+          <h2 className="text-2xl font-semibold mb-8">Inspiration for your next trip</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[
+              {
+                city: "Miami",
+                image: "https://images.unsplash.com/photo-1535498730771-e735b998cd64?q=80&w=1974&auto=format&fit=crop",
+                distance: "2 hour drive"
+              },
+              {
+                city: "Aspen",
+                image: "https://images.unsplash.com/photo-1542384557-0824d90731ee?q=80&w=1974&auto=format&fit=crop",
+                distance: "4 hour drive"
+              },
+              {
+                city: "San Diego",
+                image: "https://images.unsplash.com/photo-1538970272646-f61fabb3a8a2?q=80&w=1974&auto=format&fit=crop",
+                distance: "5 hour drive"
+              },
+              {
+                city: "New York",
+                image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?q=80&w=1974&auto=format&fit=crop",
+                distance: "6 hour drive"
+              }
+            ].map((location, index) => (
+              <Link to={`/properties?location=${location.city}`} key={index} className="group">
+                <div className="rounded-xl overflow-hidden">
+                  <div className="h-60 overflow-hidden">
+                    <img 
+                      src={location.image} 
+                      alt={location.city} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="p-4 bg-background rounded-b-xl">
+                    <h3 className="font-medium text-lg">{location.city}</h3>
+                    <p className="text-muted-foreground">{location.distance}</p>
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
       </section>
       
-      {/* Map Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold">Explore Properties on the Map</h2>
-            <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
-              Find properties in your desired location and get a better understanding of the neighborhood
+      {/* Host Banner */}
+      <section className="py-16 relative">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop" 
+            alt="Hosting" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent" />
+        </div>
+        
+        <div className="container relative z-10">
+          <div className="max-w-lg text-white">
+            <h2 className="text-4xl font-bold mb-4">Become a Host</h2>
+            <p className="text-xl mb-8">
+              Earn extra income and unlock new opportunities by sharing your space.
             </p>
-          </div>
-          
-          <PropertyMap properties={properties} className="shadow-lg" />
-          
-          <div className="mt-8 text-center">
-            <Link to="/map">
-              <Button>
-                Open Full Map View
+            <Link to="/list-property">
+              <Button 
+                size="lg" 
+                className="rounded-full bg-white text-black hover:bg-white/90"
+              >
+                Learn more
               </Button>
             </Link>
           </div>
         </div>
       </section>
       
-      {/* Property Types Section */}
+      {/* Experiences Section */}
       <section className="py-16 bg-background">
         <div className="container">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold">Browse by Property Type</h2>
-            <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
-              Explore different types of properties to find what suits your needs
-            </p>
-          </div>
+          <h2 className="text-2xl font-semibold mb-8">Discover experiences</h2>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Link to="/properties?type=house" className="group">
-              <div className="relative rounded-lg overflow-hidden h-64 shadow-md transition-all group-hover:shadow-lg">
-                <img 
-                  src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2070&auto=format&fit=crop" 
-                  alt="Houses" 
-                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
-                  <Home className="text-white mb-2 h-6 w-6" />
-                  <h3 className="text-xl font-bold text-white">Houses</h3>
-                  <p className="text-white/80 text-sm">Find your perfect family home</p>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="rounded-xl overflow-hidden relative group">
+              <img 
+                src="https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=1974&auto=format&fit=crop" 
+                alt="Things to do on your trip" 
+                className="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8">
+                <h3 className="text-2xl font-bold text-white mb-2">Things to do on your trip</h3>
+                <Button 
+                  className="w-fit rounded-full bg-white text-black hover:bg-white/90"
+                >
+                  Experiences
+                </Button>
               </div>
-            </Link>
-            
-            <Link to="/properties?type=apartment" className="group">
-              <div className="relative rounded-lg overflow-hidden h-64 shadow-md transition-all group-hover:shadow-lg">
-                <img 
-                  src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=2070&auto=format&fit=crop" 
-                  alt="Apartments" 
-                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
-                  <Building className="text-white mb-2 h-6 w-6" />
-                  <h3 className="text-xl font-bold text-white">Apartments</h3>
-                  <p className="text-white/80 text-sm">Modern urban living spaces</p>
-                </div>
-              </div>
-            </Link>
-            
-            <Link to="/properties?type=condo" className="group">
-              <div className="relative rounded-lg overflow-hidden h-64 shadow-md transition-all group-hover:shadow-lg">
-                <img 
-                  src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=2070&auto=format&fit=crop" 
-                  alt="Condos" 
-                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
-                  <Building className="text-white mb-2 h-6 w-6" />
-                  <h3 className="text-xl font-bold text-white">Condos</h3>
-                  <p className="text-white/80 text-sm">Luxury with amenities</p>
-                </div>
-              </div>
-            </Link>
-            
-            <Link to="/properties?type=townhouse" className="group">
-              <div className="relative rounded-lg overflow-hidden h-64 shadow-md transition-all group-hover:shadow-lg">
-                <img 
-                  src="https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?q=80&w=2070&auto=format&fit=crop" 
-                  alt="Townhouses" 
-                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
-                  <Home className="text-white mb-2 h-6 w-6" />
-                  <h3 className="text-xl font-bold text-white">Townhouses</h3>
-                  <p className="text-white/80 text-sm">The best of both worlds</p>
-                </div>
-              </div>
-            </Link>
-          </div>
-        </div>
-      </section>
-      
-      {/* CTA Section */}
-      <section className="py-16 bg-primary text-primary-foreground">
-        <div className="container">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="mb-6 md:mb-0 md:mr-8">
-              <h2 className="text-3xl font-bold">Ready to Find Your Dream Home?</h2>
-              <p className="mt-2 text-primary-foreground/90 max-w-xl">
-                Start your search now and discover the perfect property that matches your lifestyle and preferences.
-              </p>
             </div>
-            <div className="flex gap-4">
-              <Button variant="secondary" size="lg">
-                Browse Properties
-              </Button>
-              <Button variant="outline" size="lg" className="bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary">
-                Contact an Agent
-              </Button>
+            
+            <div className="rounded-xl overflow-hidden relative group">
+              <img 
+                src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?q=80&w=1974&auto=format&fit=crop" 
+                alt="Things to do from home" 
+                className="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8">
+                <h3 className="text-2xl font-bold text-white mb-2">Things to do from home</h3>
+                <Button 
+                  className="w-fit rounded-full bg-white text-black hover:bg-white/90"
+                >
+                  Online Experiences
+                </Button>
+              </div>
             </div>
           </div>
         </div>
