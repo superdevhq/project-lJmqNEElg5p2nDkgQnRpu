@@ -117,11 +117,11 @@
 
 /* Custom scrollbar for category navigation */
 .categories-scroll {
-  @apply flex space-x-2 overflow-x-auto pb-2 scrollbar-thin;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  @apply flex space-x-2 overflow-x-auto pb-2;
+  -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
+  scrollbar-width: none;  /* Hide scrollbar for Firefox */
 }
 
 .categories-scroll::-webkit-scrollbar {
-  display: none;
+  display: none;  /* Hide scrollbar for Chrome, Safari and Opera */
 }
