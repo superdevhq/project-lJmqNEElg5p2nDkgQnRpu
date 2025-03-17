@@ -1,17 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { properties } from "@/data/properties";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import { Button } from "@/components/ui/button";
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from "@/components/ui/tabs";
 import { 
   Dialog,
   DialogContent,
@@ -34,7 +28,8 @@ import {
   Tv,
   Utensils,
   Snowflake,
-  Waves
+  Waves,
+  X
 } from "lucide-react";
 
 const PropertyDetail = () => {
@@ -50,6 +45,11 @@ const PropertyDetail = () => {
   const similarProperties = property 
     ? properties.filter(p => p.type === property.type && p.id !== property.id).slice(0, 4)
     : [];
+  
+  // Scroll to top on page load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
   
   if (!property) {
     return (
@@ -69,7 +69,7 @@ const PropertyDetail = () => {
   
   const formatPrice = (price: number) => {
     return property.status === "for-rent"
-      ? `$${price.toLocaleString()} night`
+      ? `$${price.toLocaleString()}`
       : `$${price.toLocaleString()}`;
   };
   
@@ -103,10 +103,45 @@ const PropertyDetail = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
       
-      <main className="flex-1">
-        {/* Property Header - Mobile */}
-        <div className="md:hidden">
-          <div className="relative">
+      <main className="flex-1 pt-6 pb-12">
+        {/* Property Title - Desktop */}
+        <div className="container mb-6">
+          <h1 className="text-2xl font-semibold">{property.title}</h1>
+          <div className="flex flex-wrap items-center justify-between mt-2">
+            <div className="flex items-center flex-wrap">
+              <div className="flex items-center">
+                <Star className="h-4 w-4 fill-current" />
+                <span className="ml-1 font-medium">{rating}</span>
+                <span className="mx-1">·</span>
+                <span className="underline">{reviewCount} reviews</span>
+              </div>
+              <span className="mx-2">·</span>
+              <div className="flex items-center">
+                <MapPin className="h-4 w-4 mr-1" />
+                <span className="underline">
+                  {property.city || property.address.split(',')[1]?.trim()}, {property.address.split(',')[2]?.trim()}
+                </span>
+              </div>
+            </div>
+            <div className="flex gap-4 mt-2 sm:mt-0">
+              <button className="flex items-center text-sm font-medium hover:underline">
+                <Share className="h-4 w-4 mr-2" />
+                Share
+              </button>
+              <button 
+                className="flex items-center text-sm font-medium hover:underline"
+                onClick={() => setIsFavorite(!isFavorite)}
+              >
+                <Heart className={`h-4 w-4 mr-2 ${isFavorite ? "fill-primary text-primary" : ""}`} />
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Property Images - Mobile */}
+        <div className="md:hidden container mb-6">
+          <div className="relative rounded-xl overflow-hidden">
             <img 
               src={property.images[currentImageIndex]} 
               alt={property.title} 
@@ -114,14 +149,14 @@ const PropertyDetail = () => {
             />
             <button 
               onClick={prevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white rounded-full p-1"
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-1 shadow-md"
               aria-label="Previous image"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button 
               onClick={nextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white rounded-full p-1"
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-1 shadow-md"
               aria-label="Next image"
             >
               <ChevronRight className="h-5 w-5" />
@@ -139,92 +174,48 @@ const PropertyDetail = () => {
           </div>
         </div>
         
-        {/* Property Title - Mobile */}
-        <div className="md:hidden container py-4">
-          <h1 className="text-xl font-medium">{property.title}</h1>
-          <div className="flex items-center justify-between mt-1">
-            <div className="flex items-center">
-              <Star className="h-4 w-4 fill-current" />
-              <span className="ml-1 font-medium">{rating}</span>
-              <span className="mx-1">·</span>
-              <span className="text-muted-foreground underline">{reviewCount} reviews</span>
-            </div>
-            <div className="flex gap-3">
-              <button className="flex items-center text-sm font-medium">
-                <Share className="h-4 w-4 mr-1" />
-                Share
-              </button>
-              <button 
-                className="flex items-center text-sm font-medium"
-                onClick={() => setIsFavorite(!isFavorite)}
-              >
-                <Heart className={`h-4 w-4 mr-1 ${isFavorite ? "fill-primary text-primary" : ""}`} />
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-        
         {/* Property Images - Desktop */}
-        <div className="hidden md:block container py-8">
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <h1 className="text-2xl font-medium">{property.title}</h1>
-              <div className="flex items-center mt-1">
-                <Star className="h-4 w-4 fill-current" />
-                <span className="ml-1 font-medium">{rating}</span>
-                <span className="mx-1">·</span>
-                <span className="text-muted-foreground underline">{reviewCount} reviews</span>
-                <span className="mx-1">·</span>
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground underline ml-1">
-                  {property.address.split(',')[1]?.trim()}, {property.address.split(',')[2]?.trim()}
-                </span>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <button className="flex items-center text-sm font-medium">
-                <Share className="h-4 w-4 mr-1" />
-                Share
-              </button>
-              <button 
-                className="flex items-center text-sm font-medium"
-                onClick={() => setIsFavorite(!isFavorite)}
-              >
-                <Heart className={`h-4 w-4 mr-1 ${isFavorite ? "fill-primary text-primary" : ""}`} />
-                Save
-              </button>
-            </div>
-          </div>
-          
+        <div className="hidden md:block container mb-8">
           <Dialog open={showAllPhotos} onOpenChange={setShowAllPhotos}>
-            <div className="grid grid-cols-2 gap-3 h-[450px]">
-              <div className="col-span-1 row-span-1 relative rounded-l-xl overflow-hidden">
+            <div className="grid grid-cols-4 gap-2 h-[450px]">
+              <div className="col-span-2 row-span-2 relative rounded-l-xl overflow-hidden">
                 <img 
                   src={property.images[0]} 
                   alt={property.title} 
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="col-span-1 row-span-2 grid grid-rows-2 gap-3">
-                <div className="relative rounded-tr-xl overflow-hidden">
-                  <img 
-                    src={property.images[1] || property.images[0]} 
-                    alt={property.title} 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="relative rounded-br-xl overflow-hidden">
-                  <img 
-                    src={property.images[2] || property.images[0]} 
-                    alt={property.title} 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+              <div className="col-span-1 row-span-1 relative overflow-hidden">
+                <img 
+                  src={property.images[1] || property.images[0]} 
+                  alt={property.title} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="col-span-1 row-span-1 relative overflow-hidden rounded-tr-xl">
+                <img 
+                  src={property.images[2] || property.images[0]} 
+                  alt={property.title} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="col-span-1 row-span-1 relative overflow-hidden">
+                <img 
+                  src={property.images[3] || property.images[0]} 
+                  alt={property.title} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="col-span-1 row-span-1 relative overflow-hidden rounded-br-xl">
+                <img 
+                  src={property.images[4] || property.images[0]} 
+                  alt={property.title} 
+                  className="w-full h-full object-cover"
+                />
               </div>
               
               <DialogTrigger asChild>
-                <button className="absolute bottom-4 right-4 bg-white text-black font-medium rounded-lg px-4 py-2 text-sm flex items-center">
+                <button className="absolute bottom-4 right-4 bg-white text-black font-medium rounded-lg px-4 py-2 text-sm flex items-center shadow-md hover:shadow-lg transition-shadow">
                   <svg viewBox="0 0 16 16" className="h-4 w-4 mr-2">
                     <path d="M1.5 13.5h13V9h1v5a.5.5 0 0 1-.5.5h-14a.5.5 0 0 1-.5-.5v-5h1v4.5Z"></path>
                     <path d="M11.5 8.5V3h-7v5.5h-1v-6a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v6h-1Z"></path>
@@ -241,9 +232,7 @@ const PropertyDetail = () => {
                   onClick={() => setShowAllPhotos(false)}
                   className="rounded-full p-2 hover:bg-muted"
                 >
-                  <svg viewBox="0 0 32 32" className="h-4 w-4">
-                    <path d="m6 6 20 20M26 6 6 26"></path>
-                  </svg>
+                  <X className="h-4 w-4" />
                 </button>
                 <div className="flex gap-4">
                   <button className="flex items-center text-sm font-medium">
@@ -277,52 +266,50 @@ const PropertyDetail = () => {
         </div>
         
         {/* Main Content */}
-        <div className="container pb-12">
+        <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {/* Left Column - Details */}
             <div className="md:col-span-2">
-              <div className="border-b pb-6 mb-6">
-                <div className="flex justify-between">
-                  <div>
-                    <h2 className="text-xl font-medium">
-                      {property.type === "house" ? "Entire home" : 
-                       property.type === "apartment" ? "Entire apartment" :
-                       property.type === "condo" ? "Entire condo" : "Entire townhouse"} hosted by John
-                    </h2>
-                    <p className="text-muted-foreground">
-                      {property.bedrooms} {property.bedrooms === 1 ? 'bedroom' : 'bedrooms'} · 
-                      {property.bathrooms} {property.bathrooms === 1 ? 'bathroom' : 'bathrooms'} · 
-                      {Math.floor(property.squareFeet / 100)} guests
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-muted overflow-hidden">
-                    <img 
-                      src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop" 
-                      alt="Host" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+              <div className="flex justify-between items-start pb-6 border-b">
+                <div>
+                  <h2 className="text-xl font-medium">
+                    {property.type === "house" ? "Entire home" : 
+                     property.type === "apartment" ? "Entire apartment" :
+                     property.type === "condo" ? "Entire condo" : "Entire townhouse"} hosted by John
+                  </h2>
+                  <p className="text-muted-foreground mt-1">
+                    {property.bedrooms} {property.bedrooms === 1 ? 'bedroom' : 'bedrooms'} · {' '}
+                    {property.bathrooms} {property.bathrooms === 1 ? 'bath' : 'baths'} · {' '}
+                    {Math.floor(property.squareFeet / 100)} guests
+                  </p>
+                </div>
+                <div className="w-14 h-14 rounded-full overflow-hidden">
+                  <img 
+                    src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop" 
+                    alt="Host" 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
               
               {/* Highlights */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6 border-b">
                 <div className="flex gap-4">
-                  <Award className="h-8 w-8 text-muted-foreground" />
+                  <Award className="h-8 w-8 text-muted-foreground flex-shrink-0" />
                   <div>
                     <h3 className="font-medium">Experienced host</h3>
                     <p className="text-sm text-muted-foreground">John has 48 reviews for other places.</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <MapPin className="h-8 w-8 text-muted-foreground" />
+                  <MapPin className="h-8 w-8 text-muted-foreground flex-shrink-0" />
                   <div>
                     <h3 className="font-medium">Great location</h3>
                     <p className="text-sm text-muted-foreground">95% of recent guests gave the location a 5-star rating.</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <Calendar className="h-8 w-8 text-muted-foreground" />
+                  <Calendar className="h-8 w-8 text-muted-foreground flex-shrink-0" />
                   <div>
                     <h3 className="font-medium">Free cancellation</h3>
                     <p className="text-sm text-muted-foreground">Cancel before check-in for a partial refund.</p>
@@ -331,16 +318,16 @@ const PropertyDetail = () => {
               </div>
               
               {/* Description */}
-              <div className="border-b pb-6 mb-6">
+              <div className="py-6 border-b">
                 <p className="whitespace-pre-line">
                   {property.description}
                 </p>
               </div>
               
               {/* Amenities */}
-              <div className="border-b pb-6 mb-6">
-                <h2 className="text-xl font-medium mb-4">What this place offers</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="py-6 border-b">
+                <h2 className="text-xl font-medium mb-6">What this place offers</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {amenitiesWithIcons.map((amenity, index) => (
                     <div key={index} className="flex items-center gap-4">
                       {amenity.icon}
@@ -354,11 +341,11 @@ const PropertyDetail = () => {
               </div>
               
               {/* Calendar */}
-              <div className="border-b pb-6 mb-6">
+              <div className="py-6 border-b">
                 <h2 className="text-xl font-medium mb-4">
                   {property.status === "for-rent" ? "Select check-in date" : "Schedule a tour"}
                 </h2>
-                <p className="text-muted-foreground mb-4">
+                <p className="text-muted-foreground mb-6">
                   {property.status === "for-rent" 
                     ? "Add your travel dates for exact pricing" 
                     : "Choose a date and time to see this property"}
@@ -375,11 +362,11 @@ const PropertyDetail = () => {
             {/* Right Column - Booking/Contact */}
             <div className="md:col-span-1">
               <div className="sticky top-28">
-                <div className="border rounded-xl p-6 shadow-sm">
+                <div className="border rounded-xl p-6 shadow-md">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <span className="text-xl font-semibold">{formatPrice(property.price)}</span>
-                      {property.status === "for-rent" && <span className="text-muted-foreground"> night</span>}
+                      {property.status === "for-rent" && <span className="text-lg"> night</span>}
                     </div>
                     <div className="flex items-center">
                       <Star className="h-4 w-4 fill-current" />
@@ -393,16 +380,16 @@ const PropertyDetail = () => {
                     <div className="border rounded-lg overflow-hidden mb-4">
                       <div className="grid grid-cols-2">
                         <div className="p-3 border-r border-b">
-                          <p className="text-xs font-medium">CHECK-IN</p>
+                          <p className="text-xs font-medium uppercase">CHECK-IN</p>
                           <p>Add date</p>
                         </div>
                         <div className="p-3 border-b">
-                          <p className="text-xs font-medium">CHECKOUT</p>
+                          <p className="text-xs font-medium uppercase">CHECKOUT</p>
                           <p>Add date</p>
                         </div>
                       </div>
                       <div className="p-3">
-                        <p className="text-xs font-medium">GUESTS</p>
+                        <p className="text-xs font-medium uppercase">GUESTS</p>
                         <div className="flex justify-between items-center">
                           <p>1 guest</p>
                           <ChevronRight className="h-4 w-4" />
@@ -412,7 +399,7 @@ const PropertyDetail = () => {
                   ) : (
                     <div className="border rounded-lg overflow-hidden mb-4">
                       <div className="p-3">
-                        <p className="text-xs font-medium">CONTACT AGENT</p>
+                        <p className="text-xs font-medium uppercase">CONTACT AGENT</p>
                         <div className="flex justify-between items-center">
                           <p>Schedule a viewing</p>
                           <ChevronRight className="h-4 w-4" />
@@ -421,12 +408,12 @@ const PropertyDetail = () => {
                     </div>
                   )}
                   
-                  <Button className="w-full rounded-lg mb-4">
+                  <Button className="w-full rounded-lg mb-4 h-12 text-base">
                     {property.status === "for-rent" ? "Reserve" : "Contact Agent"}
                   </Button>
                   
                   {property.status === "for-rent" && (
-                    <p className="text-center text-sm text-muted-foreground mb-4">
+                    <p className="text-center text-sm mb-4">
                       You won't be charged yet
                     </p>
                   )}
@@ -434,7 +421,7 @@ const PropertyDetail = () => {
                   {property.status === "for-rent" && (
                     <div className="space-y-4">
                       <div className="flex justify-between">
-                        <span className="underline">${property.price.toLocaleString()} x 5 nights</span>
+                        <span className="underline">{formatPrice(property.price)} x 5 nights</span>
                         <span>${(property.price * 5).toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between">
